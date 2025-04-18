@@ -527,6 +527,14 @@ func main() {
 		return
 	}
 
+	// changeURl(bdd,"iphone16","https://github.com/AvoApanian/e-commerce/blob/main/3d/iphone16.fbx")
+	// changeURl(bdd,"samsung25","https://github.com/AvoApanian/e-commerce/blob/main/3d/samsong%20galaxy%202515.fbx")
+	// changeURl(bdd,"asusRog8","https://github.com/AvoApanian/e-commerce/blob/main/3d/ASUS_ROG_Phone_8.fbx")
+	// changeURl(bdd,"redmiNote14Pro+","https://github.com/AvoApanian/e-commerce/blob/main/3d/Redmi_Not_%2014_Pro%2B.fbx")
+	// changeURl(bdd,"Lenovo Legion 5 Pro","https://github.com/AvoApanian/e-commerce/blob/main/3d/%20Lenovo%20Legion%205%20Pro%20(windows).fbx")
+	// changeURl(bdd,"Dell XPS 13","https://github.com/AvoApanian/e-commerce/blob/main/3d/Dell_XPS_13(windows).fbx")
+	// changeURl(bdd,"Macbook air M2","https://github.com/AvoApanian/e-commerce/blob/main/3d/MacBook%20Air%20M2d.fbx")
+
 
 	if len(os.Args) > 1 {
 		switch os.Args[1] {

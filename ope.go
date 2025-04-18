@@ -165,3 +165,16 @@ func deleteProductByName(bdd *pgx.Conn, name string) {
 }
 
 
+func changeURl (bdd * pgx.Conn,name,url string) {
+	query := `UPDATE product SET mesh = $1 WHERE name = $2`
+
+	_,err := bdd.Exec(context.Background(),query,url,name)
+
+	if err != nil {
+		fmt.Printf("depuis changeURL -> %v\n",err)
+		return
+	}
+
+	fmt.Println("Mesh URL updated.")
+}
+
