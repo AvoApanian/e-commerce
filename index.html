@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up / Login</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom right, #ffffff, #b2fab4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .main {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 128, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.3rem;
+            width: 90%;
+            max-width: 320px;
+        }
+
+        .titre {
+            font-size: 1.8rem;
+            color: #2e7d32;
+            margin-bottom: 0.5rem;
+            transition: font-size 0.4s ease, color 0.4s ease, opacity 0.5s ease;
+            opacity: 1;
+        }
+
+        .titre.fade-out {
+            opacity: 0;
+        }
+
+        .mail,.mdp {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #c8e6c9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .mail:focus,
+        .mdp:focus {
+            border-color: #66bb6a;
+            outline: none;
+            box-shadow: 0 0 5px rgba(102, 187, 106, 0.4);
+        }
+
+        .parent_mdp,
+        .parent_reme {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            gap: 0.5rem;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #4caf50;
+            cursor: pointer;
+        }
+
+        .parent_reme p,
+        .forget_chek {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .enter,
+        .btn_sign,
+        .btn_log {
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, #4caf50, #81c784);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s ease-in-out;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .enter:hover,
+        .btn_sign:hover,
+        .btn_log:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .enter:active,
+        .btn_sign:active,
+        .btn_log:active {
+            transform: scale(0.97);
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
+        }
+
+        .enter::before,
+        .btn_sign::before,
+        .btn_log::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 70%);
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .enter:hover::before,
+        .btn_sign:hover::before,
+        .btn_log:hover::before {
+            opacity: 1;
+        }
+
+        .parent_btn {
+            margin-top: 25px; 
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            width: 100%;
+        }
+
+        .btn_sign,
+        .btn_log {
+            width: 120px;  
+            margin: 50px;    
+        }
+
+        .emoji {
+            position: absolute;
+            top:5%;
+            left:85%;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .mail_p, .mdp_p {
+            display: none;
+            color: #f44336;
+            font-size: 0.8rem;
+            margin-top: -15px;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        @media (min-width: 600px) {
+            .parent_btn {
+                width: 90%;
+                justify-content: center;
+            }
+
+            .btn_sign,
+            .btn_log {
+                width: 120px; 
+            }
+
+            .main {
+                width: 70%;
+                max-width: 400px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .main {
+                width: 30%;
+                max-width: 450px;
+            }
+
+            .titre {
+                font-size: 2rem;
+            }
+
+            .enter,
+            .btn_sign,
+            .btn_log {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main" id="main">
+        <h2 class="titre" id="titre">Sign Up</h2>
+        <input type="email" class="mail" id="mail" placeholder="Enter your email:">
+        <p class="mail_p" id="email_p">mail error try again</p>
+        <div class="parent_mdp">
+            <input type="checkbox" class="mdp_checkbox" id="mdp_checkbox" onclick="to_text()">
+            <input type="password" class="mdp" id="mdp" placeholder="Enter your password:">
+        </div>
+        <p class="mdp_p" id="mdp_p">password error try again</p>
+        <div class="parent_reme">
+            <input type="checkbox" class="reme_chekbox" id="reme_chekbox" onclick="isremeber()">
+            <p>Remember me ?</p>
+            <a href="forget.html" id="forget_link" style="display: none;">Forgot password?</a>
+        </div>
+        <button class="enter" onclick="enter()">Enter</button>
+    </div>
+    <div class="parent_btn">
+        <button class="btn_sign" onclick="btn_sign()">Sign Up</button> 
+        <button class="btn_log" onclick="btn_log()">Login</button>
+    </div>
+    <div class="emoji" id="emoji">🌙</div>
+
+    <script>
+        let poxvil = false;
+        let sign_log = "sign";
+        let remeber = false;
+
+        document.getElementById("emoji").addEventListener("click", function() {
+            const elements = [
+                document.getElementById("titre"),
+                document.getElementById("main"),
+                document.getElementById("mail"),
+                document.getElementById("mdp"),
+                document.getElementById("emoji")
+            ];
+
+            if (!poxvil) {
+                elements[0].style.color = "#000000";
+                document.body.style.background = "linear-gradient(to bottom right, #000000, #b2fab4)";
+                elements[1].style.background = "#a7a7a7";
+                elements[2].style.background = "#a7a7a7";
+                elements[3].style.background = "#a7a7a7";
+                elements[4].innerHTML = "🌞";
+                poxvil = true;
+            } else {
+                elements[0].style.color = "#2e7d32";
+                document.body.style.background = "linear-gradient(to bottom right, #ffffff, #b2fab4)";
+                elements[1].style.background = "#ffffff";
+                elements[2].style.background = "#ffffff";
+                elements[3].style.background = "#ffffff";
+                elements[4].innerHTML = "🌙";
+                poxvil = false;
+            }
+        });
+
+        function btn_sign() {
+            const titre = document.getElementById("titre");
+            titre.classList.add('fade-out');
+            setTimeout(() => { 
+                titre.innerHTML = "Sign Up";
+                titre.classList.remove('fade-out'); 
+            }, 500);
+            sign_log = "sign";
+            document.getElementById("forget_link").style.display = "none";
+        }
+
+        function btn_log() {
+            const titre = document.getElementById("titre");
+            titre.classList.add('fade-out'); 
+            setTimeout(() => { 
+                titre.innerHTML = "Login";
+                titre.classList.remove('fade-out'); 
+            }, 500); 
+            sign_log = "login";
+            document.getElementById("forget_link").style.display = "block";
+        }
+
+        function isremeber() { 
+            remeber = document.getElementById("reme_chekbox").checked;
+        }
+
+        function to_text() {
+            if (confirm("Afficher votre mot de passe peut être dangereux. Continuer ?")) {
+                const chek = document.getElementById("mdp_checkbox").checked;
+                document.getElementById("mdp").type = chek ? "text" : "password";
+            } else {
+                document.getElementById("mdp_checkbox").checked = false;
+            }
+        }
+
+        window.enter = function() {
+            const mail = document.getElementById("mail").value;
+            const mdp = document.getElementById("mdp").value;
+            const mail_p = document.getElementById("email_p");
+            const mdp_p = document.getElementById("mdp_p");
+            const enterBtn = document.querySelector(".enter");
+            let levier = false;
+            
+            mail_p.style.display = "none";
+            mdp_p.style.display = "none";
+            
+            enterBtn.disabled = true;
+            enterBtn.textContent = "Processing...";
+
+            let requette = {
+                "fichier": "index_html",
+                "sign_log": sign_log,
+                "mail": mail,
+                "mdp": mdp,
+                "remember": remeber,
+                "theme":poxvil
+            };
+
+            fetch('http://localhost:8080/api/data', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requette)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Server response:", data);
+                
+                if (!data.mail) {
+                    mail_p.style.display = "block";
+                }
+                if (!data.mdp) {
+                    mdp_p.style.display = "block";
+                }
+
+                if (sign_log === "sign" && data.mail && data.mdp) {
+                    console.log("Inscription réussie !");
+                    window.location.href = "main.html";
+                } 
+                else if (sign_log === "login") {
+                    if (data.status === "success") {
+                        console.log("Connexion réussie - ID:", data.id);                        
+                        window.location.href = "main.html";
+                    } else {
+                        console.log("Échec connexion:", data.error);
+                        mdp_p.textContent = data.error || "Email ou mot de passe incorrect";
+                        mdp_p.style.display = "block";
+                    }
+                }
+
+                
+                
+            })
+            .catch(error => {
+                console.error("Erreur réseau:", error);
+                mail_p.textContent = "Erreur de connexion au serveur";
+                mail_p.style.display = "block";
+            })
+            .finally(() => {
+                enterBtn.disabled = false;
+                enterBtn.textContent = "Enter";
+            });
+        }
+    </script>
+</body>
+</html>
+
+<!-- Example1haha! --> 
+<!-- eshuKluxdb -->

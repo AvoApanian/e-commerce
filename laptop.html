@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechNova mobile categorie</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <script src = "theme.js"></script>
+    <div id="product-container" class="product-grid"></div>
+
+    <script>
+        const obj = {
+            fichier: "laptop_html"
+        };
+
+
+        fetch("http://localhost:8080/api/data", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(obj)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error("Réponse invalide du serveur : " + text);
+                });
+            }
+            return response.text();
+        })
+        .then(data => {
+            let parsedData;
+            try {
+                parsedData = JSON.parse(data);
+            } catch (err) {
+                console.error("Erreur de parsing JSON :", err.message);
+                return;
+            }
+
+            const products = parsedData.reponse;
+            if (!products || !Array.isArray(products)) {
+                console.error("Aucun produit reçu ou format incorrect :", products);
+                return;
+            }
+
+            const container = document.getElementById("product-container");
+            let cart_arr = [];
+            let id_arr = [];
+            let obj2 = {};
+
+            const getStars = (rating) => {
+                return '⭐'.repeat(Number(rating)) + ` ${rating}/5`;
+            };
+
+
+            products.forEach(product => {
+                const card = document.createElement("div");
+                card.className = "card";
+
+                card.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>${product.description}</p>
+                    <p class="price">${product.price} €</p>
+                    <p>Stock: ${product.count}</p>
+                    <p>${getStars(product.rating)}</p>
+                `;
+
+                cart_arr.push(card);
+                id_arr.push(product.id);
+                container.appendChild(card);
+            });
+
+
+            cart_arr.forEach((card,i) => {
+                card.addEventListener("click",() => {
+                    const detailReq = {
+                    fichier: "laptop_html",
+                    id:      id_arr[i]
+                    };
+
+                    fetch("http://localhost:8080/api/data", {
+                        method:  "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body:    JSON.stringify(detailReq)
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error("Erreur réseau");
+                        return res.json();
+                    })
+                    .then(data => console.log("Détail reçu :", data))
+                    .catch(err  => console.error(err));
+
+                    window.open("product.html");
+
+                    setTimeout(() => {
+                    const bcc = new BroadcastChannel("bcc_id");
+                    bcc.postMessage(detailReq);
+                    },200);
+                });
+                });
+
+
+        })
+        .catch(error => {
+            console.error("Erreur lors de la récupération des données :", error);
+        });
+    </script>
+    
+</body>
+</html>

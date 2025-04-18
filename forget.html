@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Password Recovery</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: background 0.5s ease;
+    }
+
+    .forgot-container {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 15px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 420px;
+      transition: all 0.5s ease;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .forgot-title {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    .forgot-subtitle {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      color: #555;
+      transition: color 0.3s ease;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 1.2rem 1rem 0.8rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: rgb(255, 255, 255);
+      transition: all 0.3s ease;
+    }
+
+    .input-group input:focus {
+      border-color: #2ecc71;
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.2);
+    }
+
+    .input-group label {
+      position: absolute;
+      left: 1rem;
+      top: 1rem;
+      color: #aaa;
+      font-size: 1rem;
+      background: white;
+      padding: 0 0.4rem;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .input-group input:focus + label,
+    .input-group input:not(:placeholder-shown) + label {
+      top: -0.6rem;
+      font-size: 0.75rem;
+      color: #2ecc71;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: #2ecc71;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .submit-btn:hover {
+      background: #27ae60;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+    }
+
+    .submit-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .submit-btn:hover::after {
+      left: 100%;
+    }
+
+    .codeDiv{display:none} 
+
+    .codeDiv {
+        width: fit-content;
+        margin: auto;
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .codeDiv h2 {
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .codeDiv input.code_inp {
+        padding: 10px 15px;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        font-size: 16px;
+        outline: none;
+        transition: border-color 0.3s;
+        width: 180px;
+    }
+
+    .codeDiv input.code_inp:focus {
+        border-color: #27ae60;
+    }
+
+    .codeDiv .codeBtn {
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .codeDiv .codeBtn::before {
+        content: "";
+        position: absolute;
+        background: rgba(255, 255, 255, 0.2);
+        width: 120%;
+        height: 100%;
+        top: 0;
+        left: -120%;
+        transform: skewX(-20deg);
+        transition: 0.5s;
+    }
+
+    .codeDiv .codeBtn:hover::before {
+        left: 120%;
+    }
+
+    .codeDiv .codeBtn:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 10px #27ae60aa;
+    }
+  </style>
+</head>
+<body>
+  <div class="forgot-container">
+    <div class = "mailDiv">
+        <h1 class="forgot-title">Forgot Password?</h1>
+        <p class="forgot-subtitle">Enter your email address below and we'll send you a verification code.</p>
+
+        <form id="emailForm">
+        <div class="input-group">
+            <input type="email" id="email" placeholder=" " required />
+            <label for="email" id="lablabu">Enter your email</label>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+            Valide your email
+        </button>
+        </form>
+    </div>
+    <div class = "codeDiv" id = "codeDiv">
+        <h2>Enter the code here</h2>
+        <div>
+            <input type = "number" class = "code_inp" id = "code_inp">
+            <button class = "codeBtn" onclick="codeBtn()">Valide your code</button>
+        </div>
+        <p id = "code_p"></p>
+    </div>
+  </div>
+
+  <script>
+    let chanel = new BroadcastChannel("theme");
+    chanel.onmessage = (event) => {
+      let poxvil = event.data.theme;
+      console.log(poxvil);
+
+      const container = document.querySelector('.forgot-container');
+      const code = document.getElementById("email");
+      const lablabu = document.getElementById("lablabu");
+      const p = document.querySelector(".forgot-subtitle");
+      const code_inp = document.getElementById("code_inp");
+
+      if (poxvil) {
+        document.body.style.background = "linear-gradient(to bottom right, #000000, #b2fab4)";
+        container.style.background = "#a7a7a7";
+        code.style.background = "#d0d0d0";
+        lablabu.style.background = "#d0d0d0";
+        lablabu.style.color = "#fff";
+        p.style.color = "#111";
+        code_inp.style.background = "#a7a7a7";
+        code_inp.style.color = "black";
+      } else {
+        document.body.style.background = "linear-gradient(to bottom right, #ffffff, #b2fab4)";
+        container.style.background = "white";
+        code.style.background = "white";
+        lablabu.style.background = "white";
+        lablabu.style.color = "#000";
+        p.style.color = "#555";
+        code_inp.style.background = "white";
+        code_inp.style.color = "black";
+      }
+    };
+
+    document.getElementById("emailForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      let mail = document.getElementById("email").value;
+      const mailDiv = document.querySelector(".mailDiv");
+      const codeDiv = document.getElementById("codeDiv");
+
+      const obj = {
+          "fichier":"forget_html",
+          "mail_code":"mail",
+          "mail":mail,
+          "code":0
+      }
+
+      fetch('http://localhost:8080/api/data', {
+          method:"POST",
+          headers:{
+              "Content-Type":"application/json"
+          },
+          body:JSON.stringify(obj)
+      })
+      .then(response => response.json())
+      .then(data => {
+          console.log(data);
+          setTimeout(() => {
+              mailDiv.style.display = "none";
+              codeDiv.style.display = "block";
+          }, 500);
+      })
+      .catch(error => {
+          console.error("Impossible de recevoir des données du back", error);
+      });
+    });
+
+    function codeBtn() {
+        const code = document.getElementById("code_inp").value;
+        const code_p = document.getElementById("code_p");
+
+        const obj = {
+            "fichier":"forget_html",
+            "mail_code":"code",
+            "mail":"no",
+            "code":code
+        }
+
+        fetch('http://localhost:8080/api/data', {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(obj)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.code) {
+                code_p.innerText = "";
+            } else {
+                code_p.innerText = "Error try again";
+            }
+        })
+        .catch(error => {
+            console.log("Impossible de recevoir des données depuis le back\n", error);
+            code_p.innerText = "Connection error";
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Product Viewer with AR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/loaders/babylon.glTF2FileLoader.min.js"></script>
+  <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+  <style>
+    :root {
+      --primary-light: #b2fab4;
+      --primary-dark: #388e3c;
+      --bg-light: #ffffff;
+      --bg-dark: #121212;
+      --text-light: #333333;
+      --text-dark: #f5f5f5;
+      --nav-light: #f8f9fa;
+      --nav-dark: #212121;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --neon-effect: 0 0 10px rgba(72, 255, 0, 0.8),
+                    0 0 20px rgba(72, 255, 0, 0.6),
+                    0 0 30px rgba(72, 255, 0, 0.4);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, var(--bg-light), var(--primary-light));
+      color: var(--text-light);
+      min-height: 100vh;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    body.dark-mode {
+      background: linear-gradient(135deg, var(--bg-dark), var(--primary-dark));
+      color: var(--text-dark);
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .viewer {
+      flex: 1;
+      position: relative;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .info {
+      width: 400px;
+      background-color: var(--bg-light);
+      padding: 30px;
+      box-shadow: -3px 0 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    body.dark-mode .info {
+      background-color: var(--nav-dark);
+      color: var(--text-dark);
+    }
+
+    .product-details {
+      flex-grow: 1;
+    }
+
+    .product-name {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: inherit;
+      background: linear-gradient(90deg, #4caf50, #388e3c);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradientShift 3s ease infinite;
+      background-size: 200% 200%;
+    }
+
+    .product-price {
+      font-size: 1.5rem;
+      color: #4caf50;
+      margin-bottom: 20px;
+      text-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+    }
+
+    .product-description {
+      font-size: 1rem;
+      margin-bottom: 20px;
+      color: inherit;
+    }
+
+    .product-rating {
+      font-size: 1rem;
+      margin-bottom: 20px;
+      color: inherit;
+      opacity: 0.8;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      flex-direction: column;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 15px 25px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, 
+                                rgba(255,255,255,0.1) 0%, 
+                                rgba(255,255,255,0.3) 50%, 
+                                rgba(255,255,255,0.1) 100%);
+      z-index: -1;
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .btn:hover::before {
+      transform: translateY(0);
+    }
+
+    .btn-buy {
+      background-color: #4caf50;
+      color: white;
+      box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-buy:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
+    }
+
+    .btn-buy:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+    }
+
+    .btn-back {
+      background-color: #e0e0e0;
+      color: #333;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-back:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-back:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .btn-back {
+      background-color: #333;
+      color: #f5f5f5;
+    }
+
+    .ar-button {
+      background: linear-gradient(135deg, #6e8efb, #a777e3);
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+      box-shadow: 0 5px 15px rgba(110, 142, 251, 0.4);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ar-button:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(110, 142, 251, 0.6);
+    }
+
+    .ar-button:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(110, 142, 251, 0.4);
+    }
+
+    .ar-button::after {
+      content: '👉';
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .ar-button:hover::after {
+      right: 20px;
+      opacity: 1;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .ar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .ar-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="viewer">
+      <canvas id="renderCanvas"></canvas>
+    </div>
+    <div class="info">
+      <div class="product-details">
+        <h1 class="product-name" id="product-name">Loading...</h1>
+        <div class="product-price" id="product-price">€0.00</div>
+        <div class="product-rating" id="product-rating">⭐ 0.0 (0 reviews)</div>
+        <div class="product-description" id="product-description">Loading description...</div>
+      </div>
+      <div class="buttons">
+        <button class="btn btn-back" id="btn-back">Back</button>
+        <button class="btn btn-buy" id="btn-buy">Buy</button>
+        <button class="ar-button" id="ar-button">View in AR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ar-overlay" id="ar-overlay">
+    <button class="ar-close" id="ar-close">×</button>
+    <h2>Augmented Reality Mode</h2>
+    <p>Point your camera at a flat surface to place the product</p>
+    <canvas id="arCanvas" style="width: 100%; height: 80%;"></canvas>
+  </div>
+
+  <script>
+    // function getValidGoogleDriveLink(url) {
+    //   const regex = /https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\/view\?usp=sharing/;
+    //   const match = url.match(regex);
+    //   return match && match[1] ? `https://drive.google.com/uc?export=download&id=${match[1]}` : url;
+    // }
+
+    const canvas = document.getElementById("renderCanvas");
+    const engine = new BABYLON.Engine(canvas, true);
+    const scene = new BABYLON.Scene(engine);
+    scene.clearColor = new BABYLON.Color3(0.95, 0.95, 0.95);
+
+    const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 2.5, 5, BABYLON.Vector3.Zero(), scene);
+    camera.attachControl(canvas, true);
+
+    const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
+    const light2 = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(-1, -2, -1), scene);
+    light2.intensity = 0.5;
+
+    const env = scene.createDefaultEnvironment({
+      createGround: true,
+      groundSize: 10,
+      skyboxSize: 100,
+      groundYBias: 1
+    });
+
+    engine.runRenderLoop(() => scene.render());
+    window.addEventListener("resize", () => engine.resize());
+
+    const bcc = new BroadcastChannel("bcc_id");
+    let currentMesh = null;
+
+
+      bcc.onmessage = (event) => {
+      const id = event.data.id;
+      console.log("Received ID:", id);
+
+      fetch("http://localhost:8080/api/data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ fichier: "laptop_html", id }),
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("Invalid server response");
+        return response.json(); 
+      })
+      .then(data => {
+        console.log("Full response data:", data); 
+        
+
+        const product = data.reponse ? data.reponse[0] : data;
+        console.log(product);
+        
+        if (!product) {
+          throw new Error("Product data not found in response");
+        }
+
+        document.getElementById("product-name").textContent = product.name || "No name";
+        document.getElementById("product-description").textContent = product.description || "No description";
+        document.getElementById("product-price").textContent = `${product.price || 0} €`;
+        document.getElementById("product-rating").textContent = `⭐ ${product.rating || 0} (${product.count || 0} reviews)`;
+
+        if (currentMesh) {
+          currentMesh.dispose();
+        }
+
+        if (product.mesh) {
+          BABYLON.SceneLoader.ImportMesh("", "",
+          product.mesh,
+          scene, (meshes) => {
+              currentMesh = meshes[0];
+              meshes.forEach(m => m.position.y = 1);
+              
+              scene.registerBeforeRender(() => {
+                if (currentMesh) {
+                  currentMesh.rotation.y += 0.005;
+                }
+              });
+            }, null, (scene, message, exception) => {
+              console.error("3D model loading error:", message);
+              alert("Could not load 3D model. Please check the link.");
+            });
+        } else {
+          console.warn("No mesh URL provided for this product");
+        }
+      })
+      .catch(err => {
+        console.error("Fetch error:", err);
+        document.getElementById("product-name").textContent = "Error loading product";
+        document.getElementById("product-description").textContent = err.message;
+      });
+    };
+
+
+    document.getElementById("btn-buy").addEventListener("click", () => {
+      const btn = document.getElementById("btn-buy");
+      btn.style.transform = "scale(0.95)";
+      setTimeout(() => {
+        btn.style.transform = "scale(1)";
+        alert("Product added to your cart!");
+      }, 150);
+    });
+
+    document.getElementById("btn-back").addEventListener("click", () => {
+      const btn = document.getElementById("btn-back");
+      btn.style.transform = "translateY(2px)";
+      setTimeout(() => {
+        btn.style.transform = "translateY(0)";
+        window.history.back();
+      }, 150);
+    });
+
+    setInterval(() => {
+      const productName = document.getElementById("product-name");
+      productName.classList.toggle("floating");
+    }, 3000);
+  </script>
+</body>
+</html>
