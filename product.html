@@ -370,17 +370,18 @@
         }
 
         if (product.mesh) {
-          BABYLON.SceneLoader.ImportMesh("", "",
-          product.mesh,
+          BABYLON.SceneLoader.ImportMesh("","",
+          "3d/iphone16.glb",
           scene, (meshes) => {
               currentMesh = meshes[0];
               meshes.forEach(m => m.position.y = 1);
+              currentMesh.scaling = new BABYLON.Vector3(50, 50, 50);
               
               scene.registerBeforeRender(() => {
                 if (currentMesh) {
                   currentMesh.rotation.y += 0.005;
                 }
-              });
+              }); 
             }, null, (scene, message, exception) => {
               console.error("3D model loading error:", message);
               alert("Could not load 3D model. Please check the link.");
